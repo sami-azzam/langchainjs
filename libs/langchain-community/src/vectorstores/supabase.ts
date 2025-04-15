@@ -235,11 +235,15 @@ export class SupabaseVectorStore extends VectorStore {
     documents: Document[],
     options?: { ids?: string[] | number[] }
   ) {
-    const rows = vectors.map((embedding, idx) => ({
-      content: documents[idx].pageContent,
-      embedding,
-      metadata: documents[idx].metadata,
-    }));
+    const rows = vectors.map((embedding, idx) => {
+      const {pageContent, metadata, ...rest} = documents[idx];
+      return {
+        content: pageContent,
+        embedding,
+        metadata: metadata,
+        ...rest
+      }
+    });
 
     // upsert returns 500/502/504 (yes really any of them) if given too many rows/characters
     // ~2000 trips it, but my data is probably smaller than average pageContent and metadata
